@@ -1,5 +1,5 @@
 import fs from 'node:fs';
-const path='data/source/faurgs_ifsc_questoes_integrais_stage2.json';
+const path='data/source/faurgs_ifsc_questoes_integrais_stage3_richtext.json';
 const raw=JSON.parse(fs.readFileSync(path,'utf8'));
 const qs=raw.questoes||raw.questions||[];
 if(!Array.isArray(qs)||!qs.length) throw new Error('Banco sem questões.');
@@ -18,4 +18,4 @@ const supports=raw.textos_apoio||raw.suportes||[];
 const uniq=a=>new Set(a.filter(Boolean)).size;
 console.log(JSON.stringify({questoes:qs.length,suportes:supports.length,concursos:uniq(qs.map(q=>q.concurso||q.orgao)),disciplinas:uniq(qs.map(q=>q.disciplina)),temas:uniq(qs.map(q=>q.tema)),anuladas:qs.filter(isAnnulled).map(q=>q.id),warnings:warnings.length},null,2));
 if(warnings.length) console.warn(warnings.slice(0,20).join('\n')+(warnings.length>20?`\n... +${warnings.length-20} aviso(s)`:''));
-if(errors.length){console.error(errors.slice(0,40).join('\n'));process.exit(1);}console.log('Banco FAURGS validado.');
+if(errors.length){console.error(errors.slice(0,40).join('\n'));process.exit(1);}console.log('Banco FAURGS stage3 richtext validado.');
