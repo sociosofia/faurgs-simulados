@@ -1,6 +1,6 @@
 import fs from 'node:fs';
 
-const file = 'data/source/faurgs_ifsc_questoes_integrais_stage3_richtext.json';
+const file = 'data/source/faurgs_ifsc_questoes_integrais_stage4_linhas.json';
 const raw = JSON.parse(fs.readFileSync(file, 'utf8'));
 const questions = raw.questoes || raw.questions || [];
 const supports = raw.textos_apoio || raw.suportes || [];
