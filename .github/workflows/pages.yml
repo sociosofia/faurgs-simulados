@@ -18,8 +18,8 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - name: Preparar banco richtext de runtime
-        run: cp data/source/faurgs_ifsc_questoes_integrais_stage3_richtext.json data/source/faurgs_ifsc_questoes_integrais_stage2.json
+      - name: Preparar banco stage4 com linhas
+        run: cp data/source/faurgs_ifsc_questoes_integrais_stage4_linhas.json data/source/faurgs_ifsc_questoes_integrais_stage2.json
       - uses: actions/configure-pages@v5
       - uses: actions/upload-pages-artifact@v3
         with:
