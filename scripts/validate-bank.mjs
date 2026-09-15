@@ -4,7 +4,7 @@ const raw=JSON.parse(fs.readFileSync(path,'utf8'));
 const qs=raw.questoes||raw.questions||[];
 if(!Array.isArray(qs)||!qs.length) throw new Error('Banco sem questões.');
 const ids=new Set(); const errors=[]; const warnings=[];
-const isAnnulled=q=>q.anulada===true||q.anulado===true||String(q.situacao||q.status||'').toLowerCase().includes('anulad')||q.id==='TJRS16-PED-Q26';
+const isAnnulled=q=>q.anulada===true||q.anulado===true||String(q.situacao||q.status||'').toLowerCase().includes('anulad')||String(q.gabarito||q.gabarito_historico||'').toLowerCase().includes('anulad')||q.id==='TJRS16-PED-Q26';
 for(const [i,q] of qs.entries()){
   const id=String(q.id||''); if(!id) errors.push(`Questão ${i+1}: sem id`); else if(ids.has(id)) errors.push(`ID duplicado: ${id}`); else ids.add(id);
   if(!String(q.enunciado||q.questao||'').trim()) errors.push(`${id||i+1}: sem enunciado`);
