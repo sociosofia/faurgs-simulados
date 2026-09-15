@@ -1,0 +1,66 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover" />
+  <meta name="theme-color" content="#5b2c83" />
+  <meta name="description" content="Simulador de questões reais da banca FAURGS." />
+  <title>Simulados FAURGS</title>
+  <link rel="manifest" href="manifest.webmanifest" />
+  <link rel="icon" href="assets/icon.svg" type="image/svg+xml" />
+  <link rel="stylesheet" href="css/app.css" />
+</head>
+<body>
+<header class="topbar">
+  <div class="brand"><div class="brand-mark">F</div><div><div class="brand-title">Simulados FAURGS</div><div class="brand-subtitle">Questões reais • treino rastreável</div></div></div>
+  <div id="timerTop" class="timer timer--hidden">00:00</div>
+</header>
+<main class="app-shell" aria-live="polite">
+  <section id="loadingView" class="card center-card"><div class="spinner"></div><h1>Carregando banco FAURGS</h1><p>Preparando questões e histórico deste dispositivo.</p></section>
+
+  <section id="homeView" class="view hidden">
+    <section class="hero card"><div><span class="eyebrow">Banco FAURGS</span><h1>Treine por prova, disciplina ou tema.</h1><p>O banco é independente do motor. Respostas, revisões e sessões ficam salvas neste navegador.</p></div><div id="heroStats" class="hero-stats"></div></section>
+    <section id="resumeCard" class="card resume-card hidden"><div><span class="eyebrow">Sessão em andamento</span><h2>Há um simulado salvo.</h2><p id="resumeText"></p></div><div class="button-row"><button id="resumeBtn" class="btn btn-primary">Continuar</button><button id="discardBtn" class="btn btn-ghost">Descartar</button></div></section>
+
+    <div class="grid two-cols">
+      <section class="card"><span class="eyebrow">Atalho</span><h2>Treino misto FAURGS</h2><p>Seleciona 20 questões válidas de diferentes áreas. É treino aleatório; não reproduz a composição oficial de um edital.</p><button id="mixedBtn" class="btn btn-primary btn-wide">Gerar treino de 20 questões</button></section>
+      <section class="card"><span class="eyebrow">Treino personalizado</span><h2>Escolha o recorte</h2>
+        <div class="form-grid">
+          <label>Concurso<select id="examSelect"></select></label>
+          <label>Disciplina<select id="disciplineSelect"></select></label>
+          <label>Tema<select id="topicSelect"></select></label>
+          <label>Histórico<select id="historyFilter"><option value="all">Todas</option><option value="unseen">Ainda não respondidas</option><option value="wrong">Erradas anteriormente</option><option value="review">Marcadas para revisão</option></select></label>
+          <label>Quantidade<input id="quantityInput" type="number" min="1" max="100" value="10" inputmode="numeric" /></label>
+        </div>
+        <label class="check-row"><input id="excludeAnnulled" type="checkbox" checked /><span>Excluir anuladas</span></label>
+        <div id="poolInfo" class="pool-info"></div><button id="customBtn" class="btn btn-primary btn-wide">Gerar simulado</button>
+      </section>
+    </div>
+    <section class="card history-summary"><div><span class="eyebrow">Histórico local</span><h2>Use os erros para orientar a revisão.</h2></div><div id="historyStats" class="mini-stats"></div><button id="clearHistoryBtn" class="btn btn-danger-ghost">Limpar histórico</button></section>
+  </section>
+
+  <section id="quizView" class="view hidden">
+    <section class="quiz-toolbar card compact-card"><div><div id="progressText" class="progress-label"></div><div class="progress-track"><div id="progressBar" class="progress-bar"></div></div></div><button id="finishTopBtn" class="btn btn-ghost btn-small">Finalizar</button></section>
+    <article class="card question-card">
+      <div class="question-meta"><div id="questionChips" class="chips"></div><span id="knownBadge" class="known-badge hidden">Já resolvida</span></div>
+      <section id="supportBlock" class="support-block hidden"><button id="supportToggle" class="support-toggle" type="button" aria-expanded="false"><span>Texto-base</span><span>⌄</span></button><div id="supportContent" class="support-content hidden"></div></section>
+      <div id="questionStatement" class="question-statement"></div>
+      <fieldset id="alternatives" class="alternatives"></fieldset>
+      <div id="sourceWrap" class="source-wrap hidden"><a id="sourceLink" target="_blank" rel="noopener noreferrer">Abrir prova-fonte ↗</a></div>
+      <div class="review-box"><label class="check-row strong-check"><input id="reviewCheck" type="checkbox" /><span>Marcar para revisão</span></label><div id="reviewReasonWrap" class="review-reason hidden"><label>Motivo<select id="reviewReason"><option value="">Selecione</option><option value="duvida">dúvida entre alternativas</option><option value="conteudo">conteúdo desconhecido ou esquecido</option><option value="comando">comando / leitura operacional</option><option value="raciocinio">raciocínio incompleto</option><option value="outro">outro</option></select></label><label>Nota opcional<input id="reviewNote" type="text" maxlength="180" placeholder="Ex.: revisar crase antes da próxima bateria" /></label></div></div>
+    </article>
+    <div class="nav-row"><button id="prevBtn" class="btn btn-ghost">← Anterior</button><button id="nextBtn" class="btn btn-primary">Próxima →</button></div>
+  </section>
+
+  <section id="resultView" class="view hidden">
+    <section class="card result-hero"><span class="eyebrow">Simulado concluído</span><h1 id="resultTitle">Resultado</h1><div id="scoreBig" class="score-big"></div><p id="resultMeta"></p></section>
+    <div class="grid two-cols"><section class="card"><h2>Desempenho por disciplina</h2><div id="disciplineResults" class="result-list"></div></section><section class="card"><h2>Diagnóstico rápido</h2><div id="diagnosticResults" class="result-list"></div></section></div>
+    <section class="card"><div class="section-head"><div><span class="eyebrow">Relatório copiável</span><h2>Leve o resultado para a revisão</h2></div><button id="copyReportBtn" class="btn btn-primary">Copiar relatório</button></div><textarea id="reportOutput" class="report-output" readonly></textarea></section>
+    <section class="card"><h2>Questões</h2><div id="questionResults" class="question-results"></div></section>
+    <div class="nav-row result-actions"><button id="backHomeBtn" class="btn btn-ghost">Voltar ao início</button><button id="retryWrongBtn" class="btn btn-primary">Treinar erros desta sessão</button></div>
+  </section>
+</main>
+<div id="toast" class="toast hidden" role="status"></div>
+<script src="js/app.js" defer></script>
+</body>
+</html>
