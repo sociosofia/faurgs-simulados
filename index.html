@@ -9,6 +9,7 @@
   <link rel="manifest" href="manifest.webmanifest" />
   <link rel="icon" href="assets/icon.svg" type="image/svg+xml" />
   <link rel="stylesheet" href="css/app.css" />
+  <link rel="stylesheet" href="css/answer-reveal.css" />
 </head>
 <body>
 <header class="topbar">
@@ -46,6 +47,7 @@
       <section id="supportBlock" class="support-block hidden"><button id="supportToggle" class="support-toggle" type="button" aria-expanded="false"><span>Texto-base</span><span>⌄</span></button><div id="supportContent" class="support-content hidden"></div></section>
       <div id="questionStatement" class="question-statement"></div>
       <fieldset id="alternatives" class="alternatives"></fieldset>
+      <div class="answer-check"><button id="showAnswerBtn" class="btn btn-ghost" type="button" aria-expanded="false">Ver resposta</button><div id="answerReveal" class="answer-reveal hidden" role="status"></div></div>
       <div id="sourceWrap" class="source-wrap hidden"><a id="sourceLink" target="_blank" rel="noopener noreferrer">Abrir prova-fonte ↗</a></div>
       <div class="review-box"><label class="check-row strong-check"><input id="reviewCheck" type="checkbox" /><span>Marcar para revisão</span></label><div id="reviewReasonWrap" class="review-reason hidden"><label>Motivo<select id="reviewReason"><option value="">Selecione</option><option value="duvida">dúvida entre alternativas</option><option value="conteudo">conteúdo desconhecido ou esquecido</option><option value="comando">comando / leitura operacional</option><option value="raciocinio">raciocínio incompleto</option><option value="outro">outro</option></select></label><label>Nota opcional<input id="reviewNote" type="text" maxlength="180" placeholder="Ex.: revisar crase antes da próxima bateria" /></label></div></div>
     </article>
@@ -63,5 +65,6 @@
 <div id="toast" class="toast hidden" role="status"></div>
 <script src="js/app.js" defer></script>
 <script src="js/richtext.js" defer></script>
+<script src="js/answer-reveal.js" defer></script>
 </body>
 </html>
