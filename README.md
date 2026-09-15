@@ -4,22 +4,24 @@ Simulador estático de questões reais da banca FAURGS, baseado na experiência 
 
 ## Fonte canônica
 
-`data/source/faurgs_ifsc_questoes_integrais_stage3_richtext.json`
+`data/source/faurgs_ifsc_questoes_integrais_stage4_linhas.json`
 
-O aplicativo lê diretamente esse JSON no navegador. O `stage2` permanece no repositório como referência anterior; o `stage3_richtext` é a fonte de runtime por preservar marcações tipográficas auditadas.
+O `stage4_linhas` é a fonte de runtime. Ele preserva as marcações tipográficas auditadas do `stage3_richtext` e acrescenta a numeração auditada das linhas dos textos-base. As versões anteriores permanecem no repositório como referência histórica.
 
 ## Recursos
 
 - treino misto FAURGS;
 - filtros por concurso, disciplina, tema e histórico;
 - cronômetro e retomada automática da sessão;
+- textos-base com numeração de linhas auditada quando existente na prova-fonte;
+- botão **Ver resposta** durante o quiz, sem alterar resposta marcada, histórico ou relatório final;
 - marcação de questões para revisão com motivo e nota;
 - resultado por disciplina e relatório copiável;
 - retreino dos erros;
 - histórico salvo localmente no navegador;
 - renderização segura de destaques tipográficos em enunciados, textos-base e alternativas;
 - validação estrutural automática do banco no GitHub Actions;
-- auditoria automática de marcadores de formatação;
+- auditoria automática de marcadores de formatação e numeração de linhas;
 - publicação preparada para GitHub Pages.
 
 > O botão “Treino misto FAURGS” é um treino aleatório e não pretende reproduzir a composição oficial de um edital específico. Um modo IFSC oficial deve ser configurado depois do cotejamento com o edital correspondente.
@@ -40,6 +42,9 @@ Qualquer outro HTML permanece como texto escapado. Assim o banco pode conservar 
 ```bash
 node --check js/app.js
 node --check js/richtext.js
+node --check js/answer-reveal.js
+node scripts/test-richtext.cjs
 node scripts/validate-bank.mjs
 node scripts/audit-formatting.mjs
+node scripts/audit-lines.mjs
 ```
