@@ -4,9 +4,9 @@ Simulador estático de questões reais da banca FAURGS, baseado na experiência 
 
 ## Fonte canônica
 
-`data/source/faurgs_ifsc_questoes_integrais_stage2.json`
+`data/source/faurgs_ifsc_questoes_integrais_stage3_richtext.json`
 
-O aplicativo lê diretamente esse JSON no navegador. Não há cópia manual do banco dentro do JavaScript.
+O aplicativo lê diretamente esse JSON no navegador. O `stage2` permanece no repositório como referência anterior; o `stage3_richtext` é a fonte de runtime por preservar marcações tipográficas auditadas.
 
 ## Recursos
 
