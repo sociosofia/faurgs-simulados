@@ -1,4 +1,4 @@
-const CACHE='faurgs-simulados-v3';
+const CACHE='faurgs-simulados-v4';
 const STATIC=['./','index.html','css/app.css','js/app.js','js/richtext.js','manifest.webmanifest','assets/icon.svg'];
 self.addEventListener('install',e=>e.waitUntil(caches.open(CACHE).then(c=>c.addAll(STATIC))));
 self.addEventListener('activate',e=>e.waitUntil(caches.keys().then(keys=>Promise.all(keys.filter(k=>k!==CACHE).map(k=>caches.delete(k))))));
