@@ -12,5 +12,6 @@ jobs:
           node-version: 22
       - run: node --check js/app.js
       - run: node --check js/richtext.js
+      - run: node scripts/test-richtext.cjs
       - run: node scripts/validate-bank.mjs
       - run: node scripts/audit-formatting.mjs
