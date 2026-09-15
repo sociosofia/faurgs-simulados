@@ -1,6 +1,6 @@
 import fs from 'node:fs';
 
-const file = 'data/source/faurgs_ifsc_questoes_integrais_stage2.json';
+const file = 'data/source/faurgs_ifsc_questoes_integrais_stage3_richtext.json';
 const raw = JSON.parse(fs.readFileSync(file, 'utf8'));
 const questions = raw.questoes || raw.questions || [];
 const supports = raw.textos_apoio || raw.suportes || [];
@@ -17,6 +17,8 @@ const patterns = {
 const counts = Object.fromEntries(Object.keys(patterns).map(key => [key, 0]));
 const samples = [];
 const formattingKeys = new Set();
+let fieldsWithFormatting = 0;
+let questionsWithFormatting = 0;
 
 function inspectObjectKeys(obj) {
   if (!obj || typeof obj !== 'object') return;
@@ -26,7 +28,7 @@ function inspectObjectKeys(obj) {
 }
 
 function inspectText(text, label) {
-  if (typeof text !== 'string' || !text) return;
+  if (typeof text !== 'string' || !text) return false;
   const found = [];
   for (const [name, regex] of Object.entries(patterns)) {
     if (regex.test(text)) {
@@ -34,15 +36,22 @@ function inspectText(text, label) {
       found.push(name);
     }
   }
-  if (found.length && samples.length < 20) samples.push({ label, found, excerpt: text.slice(0, 180) });
+  if (found.length) {
+    fieldsWithFormatting += 1;
+    if (samples.length < 30) samples.push({ label, found, excerpt: text.slice(0, 220) });
+    return true;
+  }
+  return false;
 }
 
 for (const q of questions) {
   inspectObjectKeys(q);
-  inspectText(q.enunciado || q.questao, `${q.id || 'sem-id'}:enunciado`);
+  let marked = false;
+  marked = inspectText(q.enunciado || q.questao, `${q.id || 'sem-id'}:enunciado`) || marked;
   const alternatives = q.alternativas && typeof q.alternativas === 'object' ? q.alternativas : q;
-  for (const letter of ['A', 'B', 'C', 'D', 'E']) inspectText(alternatives?.[letter], `${q.id || 'sem-id'}:${letter}`);
-  inspectText(q.texto_apoio, `${q.id || 'sem-id'}:texto_apoio`);
+  for (const letter of ['A', 'B', 'C', 'D', 'E']) marked = inspectText(alternatives?.[letter], `${q.id || 'sem-id'}:${letter}`) || marked;
+  marked = inspectText(q.texto_apoio, `${q.id || 'sem-id'}:texto_apoio`) || marked;
+  if (marked) questionsWithFormatting += 1;
 }
 
 for (const support of supports) {
@@ -51,8 +60,11 @@ for (const support of supports) {
 }
 
 console.log(JSON.stringify({
+  arquivo: file,
   questoes: questions.length,
   suportes: supports.length,
+  questoes_com_formatacao: questionsWithFormatting,
+  campos_com_formatacao: fieldsWithFormatting,
   marcadores: counts,
   campos_de_formatacao_detectados: [...formattingKeys].sort(),
   amostras: samples
