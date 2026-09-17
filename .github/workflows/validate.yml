@@ -10,10 +10,12 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: 22
+      - run: node --check js/source-config.js
       - run: node --check js/app.js
       - run: node --check js/richtext.js
       - run: node --check js/support-lines.js
       - run: node --check js/answer-reveal.js
+      - run: node scripts/test-source-config.cjs
       - run: node scripts/test-richtext.cjs
       - run: node scripts/test-support-lines.cjs
       - run: node scripts/validate-bank.mjs
