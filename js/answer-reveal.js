@@ -1,7 +1,7 @@
 (() => {
 'use strict';
 
-const SOURCE = 'data/source/faurgs_ifsc_questoes_integrais_stage2.json';
+const SOURCE = window.FaurgsSource?.url || 'data/source/faurgs_ifsc_questoes_integrais_stage4_linhas.json';
 let bankPromise = null;
 
 const $ = id => document.getElementById(id);
