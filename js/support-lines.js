@@ -1,7 +1,7 @@
 (() => {
 'use strict';
 
-const DATA_URL = window.FaurgsSource?.url || 'data/source/faurgs_ifsc_questoes_integrais_stage4_linhas.json';
+const DATA_URL = (typeof window !== 'undefined' && window.FaurgsSource?.url) || 'data/source/faurgs_ifsc_questoes_integrais_stage4_linhas.json';
 let bankPromise = null;
 let scheduled = false;
 
