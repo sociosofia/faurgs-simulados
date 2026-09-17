@@ -19,3 +19,4 @@ jobs:
       - run: node scripts/validate-bank.mjs
       - run: node scripts/audit-formatting.mjs
       - run: node scripts/audit-lines.mjs
+      - run: node scripts/diagnose-target-lines.mjs
