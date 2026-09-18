@@ -28,7 +28,54 @@ function updateHistory(s){for(const id of s.questionIds){const q=qById(id),answe
 function reviewLabel(c){return{duvida:'dúvida entre alternativas',conteudo:'conteúdo desconhecido ou esquecido',comando:'comando / leitura operacional',raciocinio:'raciocínio incompleto',outro:'outro'}[c]||'sem motivo informado';}
 function rowsFor(s){return s.questionIds.map(id=>{const q=qById(id),answer=s.responses[id]||'',valid=!q.annulled&&!!q.gabarito,correct=valid&&!!answer&&answer===q.gabarito;return{q,answer,valid,correct,review:s.reviews[id]||{}};});}
 function renderResults(s){show('resultView');const rows=rowsFor(s),sc=rows.filter(r=>r.valid),hits=sc.filter(r=>r.correct).length,pct=sc.length?Math.round(hits/sc.length*100):0;$('resultTitle').textContent=s.label;$('scoreBig').textContent=`${hits}/${sc.length}`;$('resultMeta').textContent=`${pct}% de acertos • ${formatTime(s.elapsedSeconds||0)} • ${rows.filter(r=>!r.answer).length} em branco • ${rows.filter(r=>!r.valid).length} não pontuável(is)`;const groups={};rows.filter(r=>r.valid).forEach(r=>{groups[r.q.disciplina]||={total:0,hits:0};groups[r.q.disciplina].total++;if(r.correct)groups[r.q.disciplina].hits++;});$('disciplineResults').innerHTML=Object.entries(groups).map(([n,g])=>`<div class="result-row"><span>${esc(n)}</span><strong>${g.hits}/${g.total} • ${Math.round(g.hits/g.total*100)}%</strong></div>`).join('')||'<p>Sem questões pontuáveis.</p>';$('diagnosticResults').innerHTML=[['Erros / brancos',rows.filter(r=>r.valid&&!r.correct).length],['Marcadas para revisão',rows.filter(r=>r.review.marked).length],['Em branco',rows.filter(r=>!r.answer).length],['Não pontuáveis',rows.filter(r=>!r.valid).length]].map(([l,n])=>`<div class="result-row"><span>${l}</span><strong>${n}</strong></div>`).join('');$('reportOutput').value=report(s,rows);$('questionResults').innerHTML=rows.map(r=>{const status=!r.answer?'blank':r.valid?(r.correct?'ok':'wrong'):'blank',label=!r.valid?'não pontuável':!r.answer?'em branco':r.correct?'correta':'incorreta',rev=r.review.marked?` • revisar: ${reviewLabel(r.review.reason)}${r.review.note?` — ${r.review.note}`:''}`:'';return `<div class="question-result"><span class="result-dot ${status}"></span><div><strong>${esc(r.q.id)}</strong><div class="result-detail">${esc(r.q.disciplina)} • ${esc(r.q.tema)} • ${label}${esc(rev)}</div></div><div class="result-answer">${esc(r.answer||'—')} / ${esc(r.q.gabarito||'—')}</div></div>`;}).join('');$('retryWrongBtn').disabled=!rows.some(r=>r.valid&&!r.correct);}
-function report(s,rows){const sc=rows.filter(r=>r.valid),hits=sc.filter(r=>r.correct).length,disc=uniq(rows.map(r=>r.q.disciplina)).join(', '),lines=[`SIMULADO: ${s.id}`,`Modelo: ${s.label}`,`Disciplinas: ${disc}`,`Questões: ${rows.length}`,`Concluído em: ${new Date(s.completedAt||Date.now()).toLocaleString('pt-BR')}`,`Tempo: ${formatTime(s.elapsedSeconds||0)}`,`Resultado: ${hits}/${sc.length} (${sc.length?Math.round(hits/sc.length*100):0}%)`,'','RESPOSTAS:'];rows.forEach((r,i)=>{let l=`Q${String(i+1).padStart(2,'0')} [${r.q.id}]: ${r.answer||'-'}`;if(!r.valid)l+=' | NÃO PONTUÁVEL';if(r.review.marked)l+=` | PARA REVISAR | ${reviewLabel(r.review.reason)}${r.review.note?` | ${r.review.note}`:''}`;lines.push(l)});return lines.join('\n');}
+function reportText(v){
+  let t=String(v??'')
+    .replace(/\r\n?/g,'\n')
+    .replace(/<br\s*\/?>/gi,'\n')
+    .replace(/<(?:strong|b)>([\s\S]*?)<\/(?:strong|b)>/gi,'**$1**')
+    .replace(/<(?:em|i)>([\s\S]*?)<\/(?:em|i)>/gi,'*$1*')
+    .replace(/<u>([\s\S]*?)<\/u>/gi,'++$1++')
+    .replace(/<[^>]+>/g,'');
+  const decoder=document.createElement('textarea');
+  decoder.innerHTML=t;
+  return decoder.value.replace(/[ \t]+\n/g,'\n').trim();
+}
+function report(s,rows){
+  const sc=rows.filter(r=>r.valid),hits=sc.filter(r=>r.correct).length,disc=uniq(rows.map(r=>r.q.disciplina)).join(', ');
+  const lines=[
+    \`SIMULADO: \${s.id}\`,
+    \`Modelo: \${s.label}\`,
+    \`Disciplinas: \${disc}\`,
+    \`Questões: \${rows.length}\`,
+    \`Concluído em: \${new Date(s.completedAt||Date.now()).toLocaleString('pt-BR')}\`,
+    \`Tempo: \${formatTime(s.elapsedSeconds||0)}\`,
+    \`Resultado: \${hits}/\${sc.length} (\${sc.length?Math.round(hits/sc.length*100):0}%)\`,
+    '',
+    'RESPOSTAS:'
+  ];
+  rows.forEach((r,i)=>{
+    const num=\`Q\${String(i+1).padStart(2,'0')}\`;
+    const status=!r.valid?'NÃO PONTUÁVEL':!r.answer?'EM BRANCO':r.correct?'CORRETA':'INCORRETA';
+    let l=\`\${num} [\${r.q.id}]: \${r.answer||'-'} / \${r.q.gabarito||'-'} | \${status}\`;
+    if(r.review.marked)l+=\` | PARA REVISAR | \${reviewLabel(r.review.reason)}\${r.review.note?\` | \${r.review.note}\`:''}\`;
+    lines.push(l);
+  });
+  lines.push('','QUESTÕES COMPLETAS:','');
+  rows.forEach((r,i)=>{
+    const num=\`Q\${String(i+1).padStart(2,'0')}\`;
+    const status=!r.valid?'NÃO PONTUÁVEL':!r.answer?'EM BRANCO':r.correct?'CORRETA':'INCORRETA';
+    lines.push(\`\${num} [\${r.q.id}]\`);
+    lines.push([\`Disciplina: \${r.q.disciplina}\`,\`Tema: \${r.q.tema}\`,r.q.concurso?\`Concurso: \${r.q.concurso}\`:'',r.q.ano?\`Ano: \${r.q.ano}\`:''].filter(Boolean).join(' • '));
+    lines.push(\`Resposta: \${r.answer||'-'} | Gabarito: \${r.q.gabarito||'-'} | Status: \${status}\`);
+    if(r.review.marked)lines.push(\`Revisão: \${reviewLabel(r.review.reason)}\${r.review.note?\` | \${r.review.note}\`:''}\`);
+    if(r.q.support)lines.push('','TEXTO-BASE:',reportText(r.q.support));
+    lines.push('','ENUNCIADO:',reportText(r.q.enunciado),'','ALTERNATIVAS:');
+    Object.entries(r.q.alternativas).forEach(([letter,text])=>lines.push(\`\${letter}) \${reportText(text)}\`));
+    if(r.q.url_fonte)lines.push('',\`Fonte: \${r.q.url_fonte}\`);
+    lines.push('','---','');
+  });
+  return lines.join('\n').trimEnd();
+}
 function retryWrong(){const s=state.resultSession;if(!s)return;const ids=rowsFor(s).filter(r=>r.valid&&!r.correct).map(r=>r.q.id);if(!ids.length)return toast('Não há erros para retreinar.');startSession(makeSession(shuffle(ids),'Retreino • erros da sessão anterior','retry'));}
 function bind(){$('examSelect').addEventListener('change',updateTopics);$('disciplineSelect').addEventListener('change',updateTopics);$('topicSelect').addEventListener('change',refreshPool);$('historyFilter').addEventListener('change',refreshPool);$('quantityInput').addEventListener('input',refreshPool);$('excludeAnnulled').addEventListener('change',refreshPool);$('customBtn').addEventListener('click',custom);$('mixedBtn').addEventListener('click',mixed);$('resumeBtn').addEventListener('click',resume);$('discardBtn').addEventListener('click',()=>{localStorage.removeItem(STORAGE.session);renderHome();toast('Sessão descartada.');});$('clearHistoryBtn').addEventListener('click',()=>{if(confirm('Apagar todo o histórico deste dispositivo?')){state.history={};saveHistory();renderHome();toast('Histórico apagado.');}});$('supportToggle').addEventListener('click',()=>{const c=$('supportContent'),open=c.classList.toggle('hidden')===false;$('supportToggle').setAttribute('aria-expanded',String(open));});$('reviewCheck').addEventListener('change',()=>{$('reviewReasonWrap').classList.toggle('hidden',!$('reviewCheck').checked);captureReview();});$('reviewReason').addEventListener('change',captureReview);$('reviewNote').addEventListener('input',captureReview);$('prevBtn').addEventListener('click',()=>go(-1));$('nextBtn').addEventListener('click',()=>go(1));$('finishTopBtn').addEventListener('click',finish);$('backHomeBtn').addEventListener('click',renderHome);$('retryWrongBtn').addEventListener('click',retryWrong);$('copyReportBtn').addEventListener('click',async()=>{try{await navigator.clipboard.writeText($('reportOutput').value)}catch{$('reportOutput').select();document.execCommand('copy')}toast('Relatório copiado.');});}
 async function init(){try{state.history=parse(localStorage.getItem(STORAGE.history),{});const res=await fetch(SOURCE,{cache:'no-store'});if(!res.ok)throw new Error(`Falha ao carregar o banco (${res.status})`);state.raw=await res.json();state.questions=normalize(state.raw);if(!state.questions.length)throw new Error('Nenhuma questão utilizável encontrada no stage2.');populate();bind();renderHome();if('serviceWorker'in navigator&&location.protocol.startsWith('http'))navigator.serviceWorker.register('sw.js').catch(()=>{});}catch(err){$('loadingView').innerHTML=`<h1>Não foi possível abrir o banco</h1><p>${esc(err.message)}</p><p>Abra o simulador pelo GitHub Pages/servidor web; acesso direto por arquivo local não é suportado.</p>`;}}
