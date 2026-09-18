@@ -20,7 +20,7 @@ O deploy do GitHub Pages publica o `stage4_linhas` diretamente: não há mais c�
 - textos-base com numeração de linhas auditada quando existente na prova-fonte;
 - botão **Ver resposta** durante o quiz, sem alterar resposta marcada, histórico ou relatório final;
 - marcação de questões para revisão com motivo e nota;
-- resultado por disciplina e relatório copiável;
+- resultado por disciplina e relatório copiável em duas camadas: resumo de respostas + questões completas (texto-base, enunciado, alternativas, resposta, gabarito e revisão);
 - retreino dos erros;
 - histórico salvo localmente no navegador;
 - renderização segura de destaques tipográficos em enunciados, textos-base e alternativas;
