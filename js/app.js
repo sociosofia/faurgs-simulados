@@ -43,35 +43,40 @@ function reportText(v){
 function report(s,rows){
   const sc=rows.filter(r=>r.valid),hits=sc.filter(r=>r.correct).length,disc=uniq(rows.map(r=>r.q.disciplina)).join(', ');
   const lines=[
-    \`SIMULADO: \${s.id}\`,
-    \`Modelo: \${s.label}\`,
-    \`Disciplinas: \${disc}\`,
-    \`Questões: \${rows.length}\`,
-    \`Concluído em: \${new Date(s.completedAt||Date.now()).toLocaleString('pt-BR')}\`,
-    \`Tempo: \${formatTime(s.elapsedSeconds||0)}\`,
-    \`Resultado: \${hits}/\${sc.length} (\${sc.length?Math.round(hits/sc.length*100):0}%)\`,
+    'SIMULADO: '+s.id,
+    'Modelo: '+s.label,
+    'Disciplinas: '+disc,
+    'Questões: '+rows.length,
+    'Concluído em: '+new Date(s.completedAt||Date.now()).toLocaleString('pt-BR'),
+    'Tempo: '+formatTime(s.elapsedSeconds||0),
+    'Resultado: '+hits+'/'+sc.length+' ('+(sc.length?Math.round(hits/sc.length*100):0)+'%)',
     '',
     'RESPOSTAS:'
   ];
   rows.forEach((r,i)=>{
-    const num=\`Q\${String(i+1).padStart(2,'0')}\`;
+    const num='Q'+String(i+1).padStart(2,'0');
     const status=!r.valid?'NÃO PONTUÁVEL':!r.answer?'EM BRANCO':r.correct?'CORRETA':'INCORRETA';
-    let l=\`\${num} [\${r.q.id}]: \${r.answer||'-'} / \${r.q.gabarito||'-'} | \${status}\`;
-    if(r.review.marked)l+=\` | PARA REVISAR | \${reviewLabel(r.review.reason)}\${r.review.note?\` | \${r.review.note}\`:''}\`;
+    let l=num+' ['+r.q.id+']: '+(r.answer||'-')+' / '+(r.q.gabarito||'-')+' | '+status;
+    if(r.review.marked)l+=' | PARA REVISAR | '+reviewLabel(r.review.reason)+(r.review.note?' | '+r.review.note:'');
     lines.push(l);
   });
   lines.push('','QUESTÕES COMPLETAS:','');
   rows.forEach((r,i)=>{
-    const num=\`Q\${String(i+1).padStart(2,'0')}\`;
+    const num='Q'+String(i+1).padStart(2,'0');
     const status=!r.valid?'NÃO PONTUÁVEL':!r.answer?'EM BRANCO':r.correct?'CORRETA':'INCORRETA';
-    lines.push(\`\${num} [\${r.q.id}]\`);
-    lines.push([\`Disciplina: \${r.q.disciplina}\`,\`Tema: \${r.q.tema}\`,r.q.concurso?\`Concurso: \${r.q.concurso}\`:'',r.q.ano?\`Ano: \${r.q.ano}\`:''].filter(Boolean).join(' • '));
-    lines.push(\`Resposta: \${r.answer||'-'} | Gabarito: \${r.q.gabarito||'-'} | Status: \${status}\`);
-    if(r.review.marked)lines.push(\`Revisão: \${reviewLabel(r.review.reason)}\${r.review.note?\` | \${r.review.note}\`:''}\`);
+    lines.push(num+' ['+r.q.id+']');
+    lines.push([
+      'Disciplina: '+r.q.disciplina,
+      'Tema: '+r.q.tema,
+      r.q.concurso?'Concurso: '+r.q.concurso:'',
+      r.q.ano?'Ano: '+r.q.ano:''
+    ].filter(Boolean).join(' • '));
+    lines.push('Resposta: '+(r.answer||'-')+' | Gabarito: '+(r.q.gabarito||'-')+' | Status: '+status);
+    if(r.review.marked)lines.push('Revisão: '+reviewLabel(r.review.reason)+(r.review.note?' | '+r.review.note:''));
     if(r.q.support)lines.push('','TEXTO-BASE:',reportText(r.q.support));
     lines.push('','ENUNCIADO:',reportText(r.q.enunciado),'','ALTERNATIVAS:');
-    Object.entries(r.q.alternativas).forEach(([letter,text])=>lines.push(\`\${letter}) \${reportText(text)}\`));
-    if(r.q.url_fonte)lines.push('',\`Fonte: \${r.q.url_fonte}\`);
+    Object.entries(r.q.alternativas).forEach(([letter,text])=>lines.push(letter+') '+reportText(text)));
+    if(r.q.url_fonte)lines.push('','Fonte: '+r.q.url_fonte);
     lines.push('','---','');
   });
   return lines.join('\n').trimEnd();
